@@ -12,15 +12,36 @@ Create a program that sends different types of notifications: "email", "sms", an
 To write a Java program that demonstrates a Behavioral Pattern using the Factory Method, allowing different notification types to send messages through a common interface.
 
 ## ALGORITHM :
-1.	Start the program.
-2.	Import the necessary package 'java.util'
-3.	Create an interface Notification with method notifyUser().
-4. Implement concrete classes: EmailNotification, SMSNotification, and PushNotification.
-5. Create a NotificationFactory that returns the appropriate object based on user input.
-6. In main(), get the notification type from the user.
-7. Call the notifyUser() method of the returned object.
-8. If no valid type is provided, display an error.
-9. Stop the program.
+
+1. Start the program.
+
+2. Create a Notification interface with the notifyUser() method.
+
+3. Create concrete notification classes:
+   a) EmailNotification
+   b) SMSNotification
+   c) PushNotification
+
+4. Implement the notifyUser() method in each notification class.
+
+5. Create a NotificationContext class to store the selected notification strategy.
+
+6. Read the notification type from the user.
+
+7. Check the input notification type:
+   a) If the input is "email", select EmailNotification.
+   b) If the input is "sms", select SMSNotification.
+   c) If the input is "push", select PushNotification.
+
+8. Set the selected notification strategy in the NotificationContext.
+
+9. Call the sendNotification() method to execute the selected notification.
+
+10. If the input is invalid, display "Invalid notification type".
+
+11. Repeat the process until the user enters "exit".
+
+12. Stop the program.
 
 
 
@@ -39,12 +60,12 @@ RegisterNumber: 212224220059
 ```
 import java.util.Scanner;
 
-// ===== Abstract Products =====
+// ===== Strategy Interface =====
 interface Notification {
     void notifyUser();
 }
 
-// ===== Concrete Products =====
+// ===== Concrete Strategies =====
 class EmailNotification implements Notification {
     public void notifyUser() {
         System.out.println("Sending Email Notification");
@@ -63,27 +84,18 @@ class PushNotification implements Notification {
     }
 }
 
-// ===== Abstract Factory =====
-interface NotificationFactory {
-    Notification createNotification();
-}
+// ===== Context =====
+class NotificationContext {
+    private Notification notification;
 
-// ===== Concrete Factories =====
-class EmailFactory implements NotificationFactory {
-    public Notification createNotification() {
-        return new EmailNotification();
+    public void setNotification(Notification notification) {
+        this.notification = notification;
     }
-}
 
-class SMSFactory implements NotificationFactory {
-    public Notification createNotification() {
-        return new SMSNotification();
-    }
-}
-
-class PushFactory implements NotificationFactory {
-    public Notification createNotification() {
-        return new PushNotification();
+    public void sendNotification() {
+        if (notification != null) {
+            notification.notifyUser();
+        }
     }
 }
 
@@ -91,32 +103,35 @@ class PushFactory implements NotificationFactory {
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        NotificationContext context = new NotificationContext();
 
-        String input = sc.nextLine().trim();
+        while (true) {
+            String input = sc.nextLine().trim();
 
-        NotificationFactory factory = null;
-
-        switch (input.toLowerCase()) {
-            case "email":
-                factory = new EmailFactory();
+            if (input.equalsIgnoreCase("exit")) {
                 break;
+            }
 
-            case "sms":
-                factory = new SMSFactory();
-                break;
+            switch (input.toLowerCase()) {
+                case "email":
+                    context.setNotification(new EmailNotification());
+                    break;
 
-            case "push":
-                factory = new PushFactory();
-                break;
+                case "sms":
+                    context.setNotification(new SMSNotification());
+                    break;
 
-            default:
-                System.out.println("Invalid notification type: " + input);
-                sc.close();
-                return;
+                case "push":
+                    context.setNotification(new PushNotification());
+                    break;
+
+                default:
+                    System.out.println("Invalid notification type: " + input);
+                    continue;
+            }
+
+            context.sendNotification();
         }
-
-        Notification notification = factory.createNotification();
-        notification.notifyUser();
 
         sc.close();
     }
