@@ -3,7 +3,7 @@
 # Ex.No:4(D) DESIGN PATTERN -- ABSTRACT FACTORY
 
 ## QUESTION:
-You are asked to simulate a simple Shape Drawing Tool using the Factory Design Pattern in Java.
+You are asked to simulate a simple Shape Drawing Tool using the abstract Factory Design Pattern in Java.
 
 You will implement a Shape interface with concrete classes for different shapes (Circle, Square, Rectangle). Using a ShapeFactory, your program will take shape names from user input and draw them accordingly. If the shape is unknown, print an error message.
 
@@ -37,10 +37,12 @@ RegisterNumber: 212224220059
 ```
 import java.util.Scanner;
 
+// ===== Abstract Product =====
 interface Shape {
     void draw();
 }
 
+// ===== Concrete Products =====
 class Circle implements Shape {
     public void draw() {
         System.out.println("Drawing Circle");
@@ -59,42 +61,66 @@ class Rectangle implements Shape {
     }
 }
 
-class ShapeFactory {
-    public Shape getShape(String shapeType) {
-        if (shapeType == null) {
-            return null;
-        }
-        switch (shapeType.toLowerCase()) {
-            case "circle":
-                return new Circle();
-            case "square":
-                return new Square();
-            case "rectangle":
-                return new Rectangle();
-            default:
-                return null;
-        }
+// ===== Abstract Factory =====
+interface ShapeFactory {
+    Shape createShape();
+}
+
+// ===== Concrete Factories =====
+class CircleFactory implements ShapeFactory {
+    public Shape createShape() {
+        return new Circle();
     }
 }
 
+class SquareFactory implements ShapeFactory {
+    public Shape createShape() {
+        return new Square();
+    }
+}
+
+class RectangleFactory implements ShapeFactory {
+    public Shape createShape() {
+        return new Rectangle();
+    }
+}
+
+// ===== Main =====
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        ShapeFactory factory = new ShapeFactory();
-        
+
         while (true) {
             String input = sc.nextLine().trim();
+
             if (input.equalsIgnoreCase("exit")) {
                 break;
             }
-            
-            Shape shape = factory.getShape(input);
-            if (shape != null) {
-                shape.draw();
-            } else {
-                System.out.println("Invalid shape: " + input);
+
+            ShapeFactory factory;
+
+            switch (input.toLowerCase()) {
+                case "circle":
+                    factory = new CircleFactory();
+                    break;
+
+                case "square":
+                    factory = new SquareFactory();
+                    break;
+
+                case "rectangle":
+                    factory = new RectangleFactory();
+                    break;
+
+                default:
+                    System.out.println("Invalid shape: " + input);
+                    continue;
             }
+
+            Shape shape = factory.createShape();
+            shape.draw();
         }
+
         sc.close();
     }
 }
