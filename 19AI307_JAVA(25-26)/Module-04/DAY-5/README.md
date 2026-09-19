@@ -39,11 +39,12 @@ RegisterNumber: 212224220059
 ```
 import java.util.Scanner;
 
+// ===== Abstract Products =====
 interface Notification {
     void notifyUser();
 }
 
-// ===== Concrete Notifications =====
+// ===== Concrete Products =====
 class EmailNotification implements Notification {
     public void notifyUser() {
         System.out.println("Sending Email Notification");
@@ -62,20 +63,27 @@ class PushNotification implements Notification {
     }
 }
 
-// ===== Factory =====
-class NotificationFactory {
-    public Notification createNotification(String type) {
-        if (type == null) return null;
-        switch (type.toLowerCase()) {
-            case "email":
-                return new EmailNotification();
-            case "sms":
-                return new SMSNotification();
-            case "push":
-                return new PushNotification();
-            default:
-                return null;
-        }
+// ===== Abstract Factory =====
+interface NotificationFactory {
+    Notification createNotification();
+}
+
+// ===== Concrete Factories =====
+class EmailFactory implements NotificationFactory {
+    public Notification createNotification() {
+        return new EmailNotification();
+    }
+}
+
+class SMSFactory implements NotificationFactory {
+    public Notification createNotification() {
+        return new SMSNotification();
+    }
+}
+
+class PushFactory implements NotificationFactory {
+    public Notification createNotification() {
+        return new PushNotification();
     }
 }
 
@@ -83,19 +91,32 @@ class NotificationFactory {
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        NotificationFactory factory = new NotificationFactory();
 
-        while (true) {
-            String input = sc.nextLine().trim();
-            if (input.equalsIgnoreCase("exit")) break;
+        String input = sc.nextLine().trim();
 
-            Notification n = factory.createNotification(input);
-            if (n != null) {
-                n.notifyUser();
-            } else {
+        NotificationFactory factory = null;
+
+        switch (input.toLowerCase()) {
+            case "email":
+                factory = new EmailFactory();
+                break;
+
+            case "sms":
+                factory = new SMSFactory();
+                break;
+
+            case "push":
+                factory = new PushFactory();
+                break;
+
+            default:
                 System.out.println("Invalid notification type: " + input);
-            }
+                sc.close();
+                return;
         }
+
+        Notification notification = factory.createNotification();
+        notification.notifyUser();
 
         sc.close();
     }
